@@ -129,7 +129,7 @@ function parseIfState(ifState) {
     parser(ifState.consequent);
     lineNumber++;
     if(ifState.alternate != null) {
-        if(ifState.alternate.type.equals('IfStatement')){flagIfElse = true;}
+        if(ifState.alternate.type == 'IfStatement'){flagIfElse = true;}
         else{row.Type = 'else statement';
             row.Line = lineNumber;
             tableToDisplay.push(row);
