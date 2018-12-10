@@ -1,6 +1,6 @@
 import $ from 'jquery';
 import {parseCode, parser, clean, tableToDisplay} from './code-analyzer';
-//import { parse } from 'querystring';
+
 
 
 
@@ -10,11 +10,12 @@ $(document).ready(function () {
         let parsedCode = parseCode(codeToParse);
         clean();
         parser(parsedCode['body'][0]);
-        $('#parsedCode').replaceWith(displayTable());
-        //$('#parsedCode').val(JSON.stringify(parsedCode, null, 2));
+        //$('#parsedCode').replaceWith(displayTable());
+        $('body').append(displayTable());
+        $('#parsedCode').val(JSON.stringify(parsedCode, null, 2));
     });
 
-   
+
 });
 
 

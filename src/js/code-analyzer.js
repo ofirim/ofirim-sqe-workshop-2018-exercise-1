@@ -5,11 +5,14 @@ const parseCode = (codeToParse) => {
 };
 
 export { parseCode };
-export { parser, clean, tableToDisplay };
+export { parser, clean, tableToDisplay};
 
 let lineNumber = 1;
 let tableToDisplay = [];
 let row = newRow();
+let flagIfElse = false;
+
+
 
 const typeCases = {
     'FunctionDeclaration': parseFuncDeclaration,
@@ -19,12 +22,14 @@ const typeCases = {
     'VariableDeclaration': parseVarDeclaration,
     'BinaryExpression' : parseBinaryExpression,
     'WhileStatement': parseWhileState,
+    'ForStatement' : parseForStatement,
     'IfStatement': parseIfState,
     'BlockStatement': parseBlockState,
     'MemberExpression' : parserMemberExpression,
     'Literal': parseLiteral,
     'Identifier': parseId,
-    'UnaryExpression' : parseUnaryExpression
+    'UnaryExpression' : parseUnaryExpression,
+    'UpdateExpression' : parseUpdateExpression,
 };
 
 function parser(parseMe) {
@@ -47,7 +52,7 @@ function parseFuncDeclaration(bodyElement) {
 
 function parseParamDeclaration(params){
     params.forEach(param => {
-        row.Type = 'VariableDeclaration';
+        row.Type = 'ParameterDeclaration';
         row.Name = parser(param);
         tableToDisplay.push(row);
         row = newRow();
@@ -102,17 +107,42 @@ function parseWhileState(whileExp) {
     parser(whileExp.body);
 }
 
+function parseForStatement(forExp) {
+    let init = parser(forExp.init);
+    let test = parser(forExp.test);
+    let update = parser(forExp.update);
+    row.Condition = init + ' ; '+ test + ' ; ' + update;
+    row.Type = forExp.type;
+    tableToDisplay.push(row);
+    row = newRow();
+    parser(forExp.body);
+}
+
+
 function parseIfState(ifState) {
     row.Type = ifState.type;
+    if(flagIfElse){row.Type = 'else if statement';}
     row.Condition = parser(ifState.test);
     tableToDisplay.push(row);
     row = newRow();
     lineNumber++;
     parser(ifState.consequent);
     lineNumber++;
-    parser(ifState.alternate);
+    if(ifState.alternate != null) {
+        if(ifState.alternate.type.equals('IfStatement')){flagIfElse = true;}
+        else{row.Type = 'else statement';
+            row.Line = lineNumber;
+            tableToDisplay.push(row);
+            row = newRow();}
+        parser(ifState.alternate);
+        flagIfElse = false;}
 }
 
+function parseUpdateExpression(updExp){
+    let arg = parser(updExp.argument);
+    let op = updExp.operator;
+    return arg + op;
+}
 
 function parseUnaryExpression(unExp){
     let arg = parser(unExp.argument);
@@ -131,7 +161,7 @@ function parseId(id) {
 }
 
 function parseLiteral(lit) {
-    return lit.value;
+    return lit.value+'';
 }
 
 function parseBlockState(block) {
@@ -153,3 +183,4 @@ function clean(){
     lineNumber = 1;
     row = newRow();
 }
+
